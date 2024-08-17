@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:auth0_flutter/auth0_flutter_web.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
-  await dotenv.load(fileName: ".env");
+  // await dotenv.load(fileName: ".env");
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL']!,
-    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    url: 'https://owhhxmmvmwckvqjogbwt.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93aGh4bW12bXdja3Zxam9nYnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM4NzQxODksImV4cCI6MjAzOTQ1MDE4OX0.5BXt9xlshBpARj2dG_WsU2rjebJiu6CF0vxBowkJo5g',
   );
   runApp(const MyApp());
 }
@@ -75,12 +75,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    auth0 = Auth0Web(dotenv.env['AUTH0_DOMAIN']!, dotenv.env['AUTH0_CLIENT_ID']!);
+    // auth0 = Auth0Web(dotenv.env['AUTH0_DOMAIN']!, dotenv.env['AUTH0_CLIENT_ID']!);
 
-    auth0.onLoad().then((final credentials) => setState(() {
-      // Handle or store credentials here
-      _credentials = credentials;
-    }));
+    // auth0.onLoad().then((final credentials) => setState(() {
+    //   // Handle or store credentials here
+    //   _credentials = credentials;
+    // }));
   }
 
   void fetchData() {
@@ -122,11 +122,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       
       
-      floatingActionButton: _credentials == null ? FloatingActionButton(
-        onPressed: () => auth0.loginWithRedirect(redirectUrl: dotenv.env['AUTH0_REDIRECT_URL']!),
-        tooltip: 'Log in',
-        child: const Text("Log in"),
-      ) : null, // This trailing comma makes auto-formatting nicer for build methods.
+      // floatingActionButton: _credentials == null ? FloatingActionButton(
+      //   onPressed: () => auth0.loginWithRedirect(redirectUrl: dotenv.env['AUTH0_REDIRECT_URL']!),
+      //   tooltip: 'Log in',
+      //   child: const Text("Log in"),
+      // ) : null, // This trailing comma makes auto-formatting nicer for build methods.
       
     );
   }
