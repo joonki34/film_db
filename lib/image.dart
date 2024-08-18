@@ -11,10 +11,10 @@ class ImageScreen extends StatefulWidget {
 }
 
 class _ImagePageState extends State<ImageScreen> {
-  final apiKeyTextController =
+  final _apiKeyTextController =
       TextEditingController(text: Prefs.getString('google_search_key'));
-  final keywordTextController = TextEditingController(text: 'Deadpool 2');
-  final defaultHeight = 200.0;
+  final _keywordTextController = TextEditingController(text: 'Deadpool 2');
+  final _defaultHeight = 200.0;
 
   List<ImageResult> _imageResults = [];
   int _startIndex = 1;
@@ -30,26 +30,26 @@ class _ImagePageState extends State<ImageScreen> {
       body: Center(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         TextField(
-          controller: keywordTextController,
+          controller: _keywordTextController,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
             hintText: 'Enter Search Keyword',
           ),
-          onSubmitted: (String value) => _submit(),
+          onSubmitted: (String value) => submit(),
         ),
         TextField(
-          controller: apiKeyTextController,
+          controller: _apiKeyTextController,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
             hintText: 'Enter API key',
           ),
-          onSubmitted: (String value) => _submit(),
+          onSubmitted: (String value) => submit(),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             ElevatedButton(
-              onPressed: () => _submit(),
+              onPressed: () => submit(),
               child: Text(_startIndex == 1 ? 'Search' : 'More'),
             ),
             ElevatedButton(
@@ -76,8 +76,8 @@ class _ImagePageState extends State<ImageScreen> {
                       Image.network(
                         imageResult.link,
                         width: imageResult.width.toDouble() *
-                            (defaultHeight / imageResult.height),
-                        height: defaultHeight,
+                            (_defaultHeight / imageResult.height),
+                        height: _defaultHeight,
                         fit: BoxFit.cover,
                       ),
                       OutlinedButton(
@@ -103,23 +103,23 @@ class _ImagePageState extends State<ImageScreen> {
   // Filter list according to the rules below
   // 1. width must be greater than height
   // 2. width must be equals or greater than 800
-  List<ImageResult> _filterList(List<ImageResult> list) {
+  List<ImageResult> filterList(List<ImageResult> list) {
     return list.where((element) {
       return element.width > element.height && element.width >= 800;
     }).toList();
   }
 
-  void _submit() {
-    if (apiKeyTextController.text.isEmpty) {
+  void submit() {
+    if (_apiKeyTextController.text.isEmpty) {
       showErrorDialog('Please Input API Key');
-    } else if (keywordTextController.text.isEmpty) {
+    } else if (_keywordTextController.text.isEmpty) {
       showErrorDialog('Please Input Search Keyword');
     } else {
-      _searchImage(apiKeyTextController.text, keywordTextController.text);
+      searchImage(_apiKeyTextController.text, _keywordTextController.text);
     }
   }
 
-  Future<void> _searchImage(String apiKey, String query) async {
+  Future<void> searchImage(String apiKey, String query) async {
     try {
       final response = await dio.get(
         'https://www.googleapis.com/customsearch/v1',
@@ -140,7 +140,7 @@ class _ImagePageState extends State<ImageScreen> {
         final imageResults = List<ImageResult>.from(data['items'].map(
                 (dynamic e) => ImageResult.fromJson(e as Map<String, dynamic>)))
             .toList();
-        final filteredResults = _filterList(imageResults);
+        final filteredResults = filterList(imageResults);
 
         // Update state
         setState(() {
@@ -160,9 +160,9 @@ class _ImagePageState extends State<ImageScreen> {
   void showErrorDialog(String message) {
     showDialog(
       context: context,
-      builder: (BuildContext context) => const AlertDialog(
-        title: Text('Error'),
-        content: Text('Please Input API Key'),
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
       ),
     );
   }
@@ -170,8 +170,8 @@ class _ImagePageState extends State<ImageScreen> {
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
-    keywordTextController.dispose();
-    apiKeyTextController.dispose();
+    _keywordTextController.dispose();
+    _apiKeyTextController.dispose();
     super.dispose();
   }
 }
