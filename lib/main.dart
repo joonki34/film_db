@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:auth0_flutter/auth0_flutter_web.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'image.dart';
 
 Future<void> main() async {
   // await dotenv.load(fileName: ".env");
+  usePathUrlStrategy();
   await Supabase.initialize(
     url: 'https://owhhxmmvmwckvqjogbwt.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93aGh4bW12bXdja3Zxam9nYnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM4NzQxODksImV4cCI6MjAzOTQ1MDE4OX0.5BXt9xlshBpARj2dG_WsU2rjebJiu6CF0vxBowkJo5g',
@@ -22,25 +25,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Film DB',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page!!'),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const MyHomePage(title: 'Flutter Demo Home Page!!'),
+        '/image': (context) => const ImageScreen(),
+      },
     );
   }
 }

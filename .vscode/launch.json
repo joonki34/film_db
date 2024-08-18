@@ -8,20 +8,20 @@
             "name": "film_db",
             "request": "launch",
             "type": "dart",
-            "args": ["--web-port", "51151"],
+            "args": ["--web-port", "51151", "--web-renderer", "html"],
         },
         {
             "name": "film_db (profile mode)",
             "request": "launch",
             "type": "dart",
-            "args": ["--web-port", "51151"],
+            "args": ["--web-port", "51151", "--web-renderer", "html"],
             "flutterMode": "profile"
         },
         {
             "name": "film_db (release mode)",
             "request": "launch",
             "type": "dart",
-            "args": ["--web-port", "51151"],
+            "args": ["--web-port", "51151", "--web-renderer", "html"],
             "flutterMode": "release"
         }
     ]
