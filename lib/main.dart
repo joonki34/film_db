@@ -5,10 +5,12 @@ import 'package:auth0_flutter/auth0_flutter_web.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'image.dart';
+import 'prefs.dart';
 
 Future<void> main() async {
   // await dotenv.load(fileName: ".env");
   usePathUrlStrategy();
+  await Prefs.init();
   await Supabase.initialize(
     url: 'https://owhhxmmvmwckvqjogbwt.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93aGh4bW12bXdja3Zxam9nYnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM4NzQxODksImV4cCI6MjAzOTQ1MDE4OX0.5BXt9xlshBpARj2dG_WsU2rjebJiu6CF0vxBowkJo5g',

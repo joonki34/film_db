@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'prefs.dart';
 
 class ImageScreen extends StatefulWidget {
   const ImageScreen({super.key});
@@ -10,8 +11,10 @@ class ImageScreen extends StatefulWidget {
 }
 
 class _ImagePageState extends State<ImageScreen> {
-  final apiKeyTextController = TextEditingController();
+  final apiKeyTextController =
+      TextEditingController(text: Prefs.getString('google_search_key'));
   final keywordTextController = TextEditingController(text: 'Deadpool 2');
+  final defaultHeight = 200.0;
 
   List<ImageResult> _imageResults = [];
   int _startIndex = 1;
@@ -32,40 +35,22 @@ class _ImagePageState extends State<ImageScreen> {
             border: OutlineInputBorder(),
             hintText: 'Enter Search Keyword',
           ),
+          onSubmitted: (String value) => _submit(),
         ),
         TextField(
-            controller: apiKeyTextController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Enter API key',
-            )),
+          controller: apiKeyTextController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Enter API key',
+          ),
+          onSubmitted: (String value) => _submit(),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             ElevatedButton(
-              onPressed: () {
-                if (apiKeyTextController.text.isEmpty) {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => const AlertDialog(
-                      title: Text('Error'),
-                      content: Text('Please Input API Key'),
-                    ),
-                  );
-                } else if (keywordTextController.text.isEmpty) {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => const AlertDialog(
-                      title: Text('Error'),
-                      content: Text('Please Input Search Keyword'),
-                    ),
-                  );
-                } else {
-                  _searchImage(
-                      apiKeyTextController.text, keywordTextController.text);
-                }
-              },
-              child: const Text('Search'),
+              onPressed: () => _submit(),
+              child: Text(_startIndex == 1 ? 'Search' : 'More'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -74,7 +59,8 @@ class _ImagePageState extends State<ImageScreen> {
                   _startIndex = 1;
                 });
               },
-              child: const Text('Clear'),)
+              child: const Text('Clear'),
+            )
           ],
         ),
         Expanded(
@@ -90,8 +76,8 @@ class _ImagePageState extends State<ImageScreen> {
                       Image.network(
                         imageResult.link,
                         width: imageResult.width.toDouble() *
-                            (300 / imageResult.height),
-                        height: 300,
+                            (defaultHeight / imageResult.height),
+                        height: defaultHeight,
                         fit: BoxFit.cover,
                       ),
                       OutlinedButton(
@@ -101,7 +87,8 @@ class _ImagePageState extends State<ImageScreen> {
                               throw Exception('Could not launch $url');
                             }
                           },
-                          child: Text("Link ${imageResult.width}x${imageResult.height}"))
+                          child: Text(
+                              "${imageResult.width}x${imageResult.height}"))
                     ],
                   );
                 }).toList(),
@@ -111,6 +98,25 @@ class _ImagePageState extends State<ImageScreen> {
         ),
       ])),
     );
+  }
+
+  // Filter list according to the rules below
+  // 1. width must be greater than height
+  // 2. width must be equals or greater than 800
+  List<ImageResult> _filterList(List<ImageResult> list) {
+    return list.where((element) {
+      return element.width > element.height && element.width >= 800;
+    }).toList();
+  }
+
+  void _submit() {
+    if (apiKeyTextController.text.isEmpty) {
+      showErrorDialog('Please Input API Key');
+    } else if (keywordTextController.text.isEmpty) {
+      showErrorDialog('Please Input Search Keyword');
+    } else {
+      _searchImage(apiKeyTextController.text, keywordTextController.text);
+    }
   }
 
   Future<void> _searchImage(String apiKey, String query) async {
@@ -127,22 +133,38 @@ class _ImagePageState extends State<ImageScreen> {
       );
 
       if (response.statusCode == 200) {
+        // Save the apiKey value to persistent storage under the 'google_search_key' key.
+        await Prefs.setString('google_search_key', apiKey);
+
         final data = response.data;
         final imageResults = List<ImageResult>.from(data['items'].map(
                 (dynamic e) => ImageResult.fromJson(e as Map<String, dynamic>)))
             .toList();
+        final filteredResults = _filterList(imageResults);
 
         // Update state
         setState(() {
-          _imageResults += imageResults;
+          _imageResults += filteredResults;
           _startIndex += 10;
         });
       } else {
+        showErrorDialog('Error: ${response.statusCode}');
         print('Error: ${response.statusCode}');
       }
     } catch (e) {
+      showErrorDialog('Error: $e');
       print('Error: $e');
     }
+  }
+
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => const AlertDialog(
+        title: Text('Error'),
+        content: Text('Please Input API Key'),
+      ),
+    );
   }
 
   @override
