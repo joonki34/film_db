@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'image.dart';
 import 'prefs.dart';
+import 'ai.dart';
 
 Future<void> main() async {
   // await dotenv.load(fileName: ".env");
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const MyHomePage(title: 'Flutter Demo Home Page!!'),
         '/image': (context) => const ImageScreen(),
+        '/ai': (context) => const AiScreen(),
       },
     );
   }
