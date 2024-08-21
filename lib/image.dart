@@ -2,15 +2,16 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'prefs.dart';
+import 'util.dart';
 
 class ImageScreen extends StatefulWidget {
   const ImageScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() => _ImagePageState();
+  State<StatefulWidget> createState() => _ImageScreenState();
 }
 
-class _ImagePageState extends State<ImageScreen> {
+class _ImageScreenState extends State<ImageScreen> {
   final _apiKeyTextController =
       TextEditingController(text: Prefs.getString('google_search_key'));
   final _keywordTextController = TextEditingController(text: 'Deadpool 2');
@@ -88,7 +89,7 @@ class _ImagePageState extends State<ImageScreen> {
                             }
                           },
                           child: Text(
-                              "${imageResult.width}x${imageResult.height}"))
+                              "${imageResult.width}x${imageResult.height} (${getExtension(imageResult.fileFormat)})"))
                     ],
                   );
                 }).toList(),
@@ -98,6 +99,13 @@ class _ImagePageState extends State<ImageScreen> {
         ),
       ])),
     );
+  }
+
+  String getExtension(String fileFormat) {
+    // Strip 'image/' at the beginning of the input if exists
+    String extension = fileFormat.replaceFirst('image/', '');
+
+    return extension.isEmpty ? 'N/A' : extension;
   }
 
   // Filter list according to the rules below
@@ -111,9 +119,9 @@ class _ImagePageState extends State<ImageScreen> {
 
   void submit() {
     if (_apiKeyTextController.text.isEmpty) {
-      showErrorDialog('Please Input API Key');
+      showErrorDialog('Please Input API Key', context);
     } else if (_keywordTextController.text.isEmpty) {
-      showErrorDialog('Please Input Search Keyword');
+      showErrorDialog('Please Input Search Keyword', context);
     } else {
       searchImage(_apiKeyTextController.text, _keywordTextController.text);
     }
@@ -148,28 +156,21 @@ class _ImagePageState extends State<ImageScreen> {
           _startIndex += 10;
         });
       } else {
-        showErrorDialog('Error: ${response.statusCode}');
+        if(!mounted) return;
+        showErrorDialog('Error: ${response.statusCode}', context);
         print('Error: ${response.statusCode}');
       }
     } catch (e) {
-      showErrorDialog('Error: $e');
+      if(!mounted) return;
+      showErrorDialog('Error: $e', context);
       print('Error: $e');
     }
-  }
-
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-      ),
-    );
   }
 
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
+    dio.close();
     _keywordTextController.dispose();
     _apiKeyTextController.dispose();
     super.dispose();
@@ -184,6 +185,7 @@ class ImageResult {
   final String snippet;
   final int width;
   final int height;
+  final String fileFormat;
 
   ImageResult({
     required this.link,
@@ -191,6 +193,7 @@ class ImageResult {
     required this.snippet,
     required this.width,
     required this.height,
+    required this.fileFormat,
   });
 
   factory ImageResult.fromJson(Map<String, dynamic> json) {
@@ -200,6 +203,7 @@ class ImageResult {
       snippet: json['snippet'],
       width: json['image']['width'],
       height: json['image']['height'],
+      fileFormat: json['fileFormat'],
     );
   }
 }
